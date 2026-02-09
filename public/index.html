@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GameLiminals Mailer</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 50px;
+            background: #f4f4f4;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        
+        input {
+            margin: 15px 0;
+            display: block;
+            width: 100%;
+        }
+        
+        button {
+            background: #2E7D32;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>🎮 GameLiminals Mailer</h2>
+        <p>Upload student JSON to send emails.</p>
+        <input type="file" id="jsonFile" accept=".json">
+        <button onclick="uploadData()">🚀 Send Emails</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        async function uploadData() {
+            const fileInput = document.getElementById('jsonFile');
+            const status = document.getElementById('status');
+
+            if (!fileInput.files[0]) return alert("Please select a file");
+
+            const reader = new FileReader();
+            reader.onload = async(e) => {
+                const students = JSON.parse(e.target.result);
+                status.innerText = "Sending... please wait.";
+
+                const response = await fetch('/api/index', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        students
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) status.innerText = `Sent ${result.sent} emails! ✅`;
+                else status.innerText = "Error: " + result.error;
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+    </script>
+</body>
+
+</html>
